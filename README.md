@@ -29,3 +29,7 @@ AIhub
 국가법령정보센터, “저작권법,” https://www.law.go.kr/
 
 문화체육관광부, “공공누리 공공저작물 이용 안내,” https://www.kogl.or.kr/
+
+## Contributors
+- eunha348
+- injai-lab (InJae_AI)
