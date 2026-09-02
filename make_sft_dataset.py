@@ -1,4 +1,3 @@
-# make_sft_dataset.py
 import json
 from pathlib import Path
 from collections import defaultdict

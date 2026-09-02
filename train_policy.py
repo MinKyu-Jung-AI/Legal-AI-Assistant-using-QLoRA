@@ -1,4 +1,3 @@
-# train_policy.py
 import argparse
 import json
 from pathlib import Path
@@ -42,7 +41,6 @@ def load_logs(log_path: Path) -> Tuple[List[str], List[int], List[float]]:
 
 def main():
     parser = argparse.ArgumentParser()
-    # ... (argparse 설정은 이전과 동일)
     args = parser.parse_args()
     
     log_path = Path(args.log_path)

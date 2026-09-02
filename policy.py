@@ -1,4 +1,3 @@
-# policy.py
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Dict
@@ -7,7 +6,6 @@ import torch
 from sentence_transformers import SentenceTransformer
 import torch.nn as nn
 
-# 액션 타입을 3가지로 확장
 ActionType = Literal["LLM_ONLY", "RAG_ONLY", "WEB_RAG"]
 
 @dataclass
@@ -24,7 +22,6 @@ class SimplePolicy:
         if not q:
             return AgentAction(type="LLM_ONLY", reason="질문이 비어 있음")
 
-        # 룰 기반도 3가지 액션을 결정하도록 고도화
         if any(k in q for k in ["최신", "2025년", "개정안", "최근 판례"]):
             return AgentAction(type="WEB_RAG", reason="최신 정보 키워드 감지")
         if any(k in q for k in ["제28조", "법 조항", "내용은?"]):
@@ -41,7 +38,6 @@ class SmallPolicyNet(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(emb_dim, hidden_dim),
             nn.ReLU(),
-            # 출력 차원을 3으로 변경
             nn.Linear(hidden_dim, 3)
         )
 

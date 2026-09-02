@@ -1,15 +1,12 @@
-# app.py (최종 통합 버전)
 import streamlit as st
 from agent import Agent
 
-# --- 1. 페이지 기본 설정 ---
 st.set_page_config(
     page_title="동서울대학교 법률 챗봇",
     page_icon="⚖️",
     layout="wide"
 )
 
-# --- 2. Agent 인스턴스를 캐시에 저장하여 한 번만 생성 ---
 @st.cache_resource
 def get_agent():
     """
@@ -21,7 +18,6 @@ def get_agent():
         agent_instance = Agent()
     return agent_instance
 
-# --- 3. 사이드바 메뉴 및 페이지 라우팅 ---
 st.sidebar.title("📂 메뉴")
 page = st.sidebar.radio(
     "페이지 선택",
@@ -55,7 +51,6 @@ if page == "홈":
             """
         )
     with col_right:
-        # 여기에 로고 이미지나 관련 이미지를 넣으면 좋습니다.
         st.image("https://www.du.ac.kr/p/img/sub/logo.png", width=200 )
         st.info("사이드바의 '법률 챗봇 데모' 페이지에서 AI 챗봇을 사용해볼 수 있습니다.")
 
@@ -66,7 +61,6 @@ elif page == "법률 챗봇 데모":
     st.title("🤖 동서울대학교 법률 챗봇 ")
     st.caption("AI 에이전트에게 지식재산권 관련 질문을 해보세요.")
 
-    # --- Agent 및 채팅 기록 초기화 ---
     agent = get_agent()
     if "messages" not in st.session_state:
         st.session_state.messages = [
@@ -79,43 +73,29 @@ elif page == "법률 챗봇 데모":
             },
         ]
 
-    # --- 이전 대화 내용 표시 ---
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-            # 디버그 정보가 있는 경우에만 표시
-            if "debug" in message and message["debug"]:
-                # st.info(f"**[DEBUG]** {message['debug']}") # 이 부분을 주석 처리
-                pass # if문 블록을 비워둘 수 없으므로 pass 추가
 
 
-    # --- 사용자 입력 처리 ---
     if prompt := st.chat_input("저작권 관련 질문을 입력하세요..."):
-        # 1. 사용자 메시지를 기록하고 화면에 표시
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # 2. AI 에이전트 답변 생성 및 표시
         with st.chat_message("assistant"):
             with st.spinner("AI가 답변을 생성하고 있습니다..."):
                 try:
-                    # ✅ 우리 Agent의 반환 형식 (answer, meta)에 맞게 수정
                     answer, meta = agent.answer(prompt)
                     
-                    # 디버그 정보 생성 (로그에는 남기지만 화면에는 표시 안 함)
                     debug_info = (
                         f"초기 판단: `{meta.get('initial_action', 'N/A')}` → "
                         f"최종 액션: `{meta.get('final_action', 'N/A')}` | "
                         f"AI 평가 점수: `{meta.get('reward', 0.0):.2f}`"
                     )
                     
-                    # 답변만 화면에 표시
                     st.markdown(answer)
-                    # st.info(f"**[DEBUG]** {debug_info}") # 이 부분을 주석 처리
 
-                    # 3. AI 답변과 디버그 정보를 세션 기록에 추가
-                    # (세션 기록에는 debug 정보를 남겨둬야, 페이지 새로고침 시 이전 대화에 debug 창이 안 뜨는 로직이 유지됩니다)
                     st.session_state.messages.append({
                         "role": "assistant",
                         "content": answer,
@@ -153,5 +133,4 @@ elif page == "문의하기":
             if not message:
                 st.error("내용을 입력해주세요.")
             else:
-                # 실제 서비스에서는 여기서 DB 저장 or 이메일 전송 처리
                 st.success("소중한 의견 감사합니다! 챗봇 개선에 큰 도움이 됩니다.")

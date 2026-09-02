@@ -1,4 +1,3 @@
-# test_rag_agent.py
 from agent import Agent
 import traceback
 
@@ -19,7 +18,6 @@ if __name__ == "__main__":
             print("\n=== 에이전트 답변 ===\n")
             print(ans)
 
-            # meta 딕셔너리에 키가 있는지 확인 후 출력
             if not meta.get("feedback_processed"):
                 print(
                     "\n[DEBUG]",

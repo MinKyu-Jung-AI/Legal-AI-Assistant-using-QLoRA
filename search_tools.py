@@ -1,4 +1,3 @@
-# search_tools.py
 from __future__ import annotations
 from typing import List, Dict
 from urllib.parse import urlparse
@@ -30,7 +29,6 @@ ALLOWED_DOMAINS = {
     "www.cros.or.kr", "cros.or.kr",
 }
 
-# 필요하면 확장용
 ALLOWED_SUFFIXES = (
     ".go.kr",      # 정부기관
     ".or.kr",      # 공공 성격 재단/협회 (저작권위원회 등)
@@ -54,7 +52,6 @@ def is_official_domain(host: str) -> bool:
     if host in ALLOWED_DOMAINS:
         return True
 
-    # 필요하면 suffix 기준 허용 (조금 더 느슨한 옵션)
     return any(host.endswith(suf) for suf in ALLOWED_SUFFIXES)
 
 
@@ -66,7 +63,7 @@ def is_private_host(host: str) -> bool:
         ip_str = socket.gethostbyname(host)
         ip = ipaddress.ip_address(ip_str)
     except Exception:
-        # 해석 실패하면 일단 private는 아닌 걸로 취급
+        # DNS 해석 실패는 비공개 주소로 판정하지 않음
         return False
 
     return any(ip in net for net in PRIVATE_NETS)
@@ -172,13 +169,13 @@ def html_to_text(html: str, max_chars: int = 5000) -> str:
 
 
 # ─────────────────────────────
-# 2) 간단 URL 리스트 기반 검색 (placeholder)
+# 2) 사전 정의 URL 기반 검색
 # ─────────────────────────────
 def search_predefined_urls(query: str) -> List[Dict]:
     """
-    미리 정해둔 공식 사이트 URL 몇 개에서 내용 긁어오는 간단 버전.
+    사전 정의된 공식 사이트에서 질문과 관련된 내용을 수집한다.
     - URL은 candidate_urls에 정의
-    - 질문에서 뽑은 키워드 기준으로 '대충 관련 있어 보이면' 결과에 포함
+    - 질문에서 추출한 키워드가 있으면 관련 문서만 결과에 포함
     """
     candidate_urls = [
         # ── 법제처 / 국가법령정보센터: 저작권법 원문 ──
@@ -202,7 +199,7 @@ def search_predefined_urls(query: str) -> List[Dict]:
         "https://www.cros.or.kr/",
     ]
 
-    # 질문에서 키워드 후보 추출 (아주 단순하게)
+    # 질문에 포함된 도메인 키워드 추출
     base_keywords = ["저작권", "이미지", "사진", "블로그", "출처", "인용", "비상업적"]
     question_keywords = [kw for kw in base_keywords if kw in query]
 
@@ -213,8 +210,7 @@ def search_predefined_urls(query: str) -> List[Dict]:
             html = safe_fetch_url(url)
             text = html_to_text(html)
 
-            # ❗ 필터 로직: 키워드가 하나도 없으면 일단 다 살려두고,
-            # 키워드가 있으면 그 중 하나라도 포함된 문서만 선택
+            # 키워드가 있으면 관련 문서만 선택
             if question_keywords:
                 if not any(kw in text for kw in question_keywords):
                     continue
@@ -231,7 +227,7 @@ def search_predefined_urls(query: str) -> List[Dict]:
 # ─────────────────────────────
 def web_search_for_agent(question: str, max_sources: int = 2) -> str:
     hits = search_predefined_urls(question)
-    print(f"[Agent] 웹 검색 hit 수: {len(hits)}")  # ← 디버그 출력
+    print(f"[Agent] 웹 검색 hit 수: {len(hits)}")
 
     if not hits:
         return ""

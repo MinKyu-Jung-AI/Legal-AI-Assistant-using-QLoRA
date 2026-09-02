@@ -1,4 +1,3 @@
-# agent.py
 import json
 from pathlib import Path
 from typing import Dict, Tuple, Optional, List
@@ -41,7 +40,7 @@ class Agent:
             answer, _ = self.llm.answer(question, use_rag=False)
         elif action.type == "RAG_ONLY":
             answer, docs = self.llm.answer(question, use_rag=True)
-        else: # WEB_RAG
+        else:
             extra_ctx = web_search_for_agent(question)
             used_web = bool(extra_ctx)
             answer, docs = self.llm.answer(question, use_rag=True, extra_context=extra_ctx)
@@ -81,7 +80,6 @@ class Agent:
             f.write(json.dumps(log_item, ensure_ascii=False) + "\n")
 
     def _update_last_reward(self, new_reward: float) -> None:
-        # 마지막으로 기록된 로그가 없으면 아무것도 하지 않음
         if not self.last_log_info:
             print("[Agent] 수정할 이전 로그 정보가 없습니다.")
             return
@@ -89,21 +87,16 @@ class Agent:
         position = self.last_log_info['position']
         log_item = self.last_log_info['content']
         
-        # 보상 점수 수정
         original_reward = log_item.get('reward', 0.0)
         log_item['reward'] = new_reward
         log_item['eval_reason'] = f"사용자 피드백으로 보상 수정 (원래 점수: {original_reward})"
 
         try:
-            # 파일을 읽고 쓰기 모드('r+')로 열어 해당 위치의 로그를 덮어씀
             with RL_LOG_PATH.open("r+", encoding="utf-8") as f:
                 f.seek(position)
-                # 덮어쓸 내용 뒤에 줄바꿈 추가
                 new_line = json.dumps(log_item, ensure_ascii=False) + "\n"
                 f.write(new_line)
             print(f"[Agent] 사용자 피드백 반영: 이전 로그의 보상을 {new_reward}로 수정했습니다.")
-            # 한 번 수정한 로그는 다시 수정하지 않도록 초기화
             self.last_log_info = {}
         except Exception as e:
             print(f"[ERROR] 로그 파일 수정 중 오류 발생: {e}")
-
