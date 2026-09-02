@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import os
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
@@ -12,8 +13,8 @@ from sentence_transformers import SentenceTransformer
 # --- 설정값 ---
 EMBED_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 EMBED_DIM = 384
-# !!! 중요: 이 URL을 반드시 본인의 원격 LLM 서버 주소로 변경하세요. !!!
-MODEL_URL = "https://interoffice-lustrative-gustavo.ngrok-free.dev/generate"
+DEFAULT_MODEL_URL = "http://localhost:8000/generate"
+MODEL_URL = os.getenv("MODEL_URL", DEFAULT_MODEL_URL).strip() or DEFAULT_MODEL_URL
 MAX_CONTEXT_CHARS = 3000
 MAX_DOC_CHARS = 700
 MAX_WEB_CHARS = 1000
